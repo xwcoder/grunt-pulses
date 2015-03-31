@@ -1,0 +1,31 @@
+{
+  "name": "grunt-pulses",
+  "version": "0.1.0",
+  "description": "compile build dist tool",
+  "homepage": "https://github.com/xwcoder/grunt-pulses",
+  "repository": "https://github.com/xwcoder/grunt-pulses.git",
+  "author": {
+    "name": "creep",
+    "email": "creep.wei@gmail.com",
+    "url": "https://xwcoder.github.io"
+  },
+  "keywords": [
+    "gruntplugin"
+  ],
+  "main": "Gruntfile.js",
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-jshint": "~0.8.0",
+    "grunt-contrib-nodeunit": "~0.3.0",
+    "grunt": "~0.4.2",
+    "jshint-stylish": "~0.1.5",
+    "load-grunt-tasks": "~0.3.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  }
+}
