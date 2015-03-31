@@ -10,6 +10,9 @@
 
 module.exports = function (grunt) {
 
+  var fs = require( './lib/fs' );
+  var compress = require( './lib/compress' );
+
   // Please see the Grunt documentation for more information regarding task
   // creation: http://gruntjs.com/creating-tasks
 
@@ -22,8 +25,16 @@ module.exports = function (grunt) {
       return false;
     }
 
-    console.log( this );
-    var options = this.options();
+    var options = this.options( {
+      banner: ''
+    } );
+
+    if ( /^min/.test( targetName) ) {
+      //grunt.file.copy( 'js/base/plugin/swfobject.js', 'dist/js/base/plugin/swfobject.js' );
+      compress( options, grunt, this.files );
+    } else if ( /^ftp/.test( targetName ) ) {
+    
+    }
 
     // Merge task-specific and/or target-specific options with these defaults.
     //var options = this.options({

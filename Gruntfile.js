@@ -9,6 +9,8 @@
 'use strict';
 
 module.exports = function (grunt) {
+
+  require( 'time-grunt' )( grunt );
   // load all npm grunt tasks
   require('load-grunt-tasks')(grunt);
 
@@ -34,14 +36,20 @@ module.exports = function (grunt) {
 
     // Configuration to be run (and then tested).
     pulses: {
-      logFile: '',
+      options: {
+        banner: '/* <%= pkg.name %> <%= grunt.template.today( "yyyy-mm-dd HH:MM:ss" ) %> */\n',
+      },
+
       min: {
         options: {
-          banner: '/* <%= pkg.name %> <%= grunt.template.today( "yyyy-mm-dd HH:MM:ss" ) %> */\n',
+          listFile: 'dist/list.txt',
+          pListFile: 'dist/plist.txt',
+          dist: 'dist',
+          excludes: [ /(^|\/)kao\./, /(^|\/)dict\./, /(^|\/)inc\./, /(^|\/)gg\.seed\./, /(^|\/)hdpv\./ ],
         },
-        listFile: '',
-        pListFile: '',
-        distDir: ''
+        files: {
+          src: ['js/kao.js', 'js/dict.js', 'js/gg.seed.js', 'js/base/plugin/swfobject.js', 'js/**/inc.js', '!js/test/**/*.js']
+        }
       },
 
       ftp_test: {

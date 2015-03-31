@@ -18,14 +18,21 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "grunt": "~0.4.2",
     "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-jshint": "~0.8.0",
     "grunt-contrib-nodeunit": "~0.3.0",
-    "grunt": "~0.4.2",
     "jshint-stylish": "~0.1.5",
-    "load-grunt-tasks": "~0.3.0"
+    "load-grunt-tasks": "~0.3.0",
+    "time-grunt": "^1.1.0"
   },
   "scripts": {
     "test": "grunt test"
+  },
+  "dependencies": {
+    "clean-css": "^3.1.8",
+    "iconv-lite": "^0.4.7",
+    "mkdirp": "^0.5.0",
+    "uglify-js": "^2.4.19"
   }
 }
