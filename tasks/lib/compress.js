@@ -43,7 +43,7 @@ module.exports = function ( options, grunt, mapFiles ) {
 
   function compressJS ( filepath ) {
 
-    var buffer = ( filepath );
+    var buffer = fs.readFile( filepath );
 
     var content = iconvLite.decode( buffer, 'utf-8' );
 
@@ -77,7 +77,7 @@ module.exports = function ( options, grunt, mapFiles ) {
 
   function compressCSS ( filepath ) {
 
-    var content = fs.readFileString( filepath );
+    var content = fs.readFileAsString( filepath );
 
     var minContent = new CleanCSS( {
       keepSpecialComments : 0, //* for keeping all (default), 1 for keeping first one only, 0 for removing all
@@ -123,10 +123,6 @@ module.exports = function ( options, grunt, mapFiles ) {
     return minFilepath;
   }
 
-  //待处理文件列表
-  var filepaths = fs.readListFile( options.listFile );
-  var minFilepaths = [];
-
   function compress ( filepaths ) {
 
     var modifyPaths = [];
@@ -146,9 +142,122 @@ module.exports = function ( options, grunt, mapFiles ) {
     } );
 
     if ( modifyPaths.length ) {
-      modifyMapFile();
+      modifyMapFile( modifyPaths );
+    } else { //没有替换文件则声称plist
+      log();
     }
   }
 
-  compress( filepaths );
+  //生成plist文件，并答应log
+  function log () {
+
+    minFilepaths.sort( function ( f1, f2 ) {
+
+      var ext1 = path.extname( f1 ).toLowerCase();
+      var ext2 = path.extname( f2 ).toLowerCase();
+
+      if ( ( ext1 == '.js' && ext2 != '.js' )
+        || ( ext1 == '.css' && ext2 != '.js' && ext2 != '.css' ) ) {
+          return -1;
+        }
+
+      if ( ( ext1 == '.js' && ext2 == '.js' )
+        || ( ext1 == '.css' && ext2 == '.css' )
+        || ( ext1 != '.js' && ext1 != '.css' && ext2!= '.js' && ext2 != '.css' ) ) {
+          return 0;
+        }
+
+      return 1;
+    } );
+
+    var jsReg = /^js\//;
+    var cssReg = /^css\//;
+    var imgReg = /^img\//;
+
+    var urls = minFilepaths.map( function ( filepath ) {
+
+      if ( jsReg.test( filepath ) ) {
+        return url.resolve( 'http://js.tv.itc.cn', filepath.replace( jsReg, '' ) );
+      }
+
+      if ( cssReg.test( filepath ) ) {
+        return url.resolve( 'http://css.tv.itc.cn', filepath.replace( cssReg, '' ) );
+      }
+
+      if ( imgReg.test( filepath ) ) {
+        return url.resolve( 'http://css.tv.itc.cn', filepath.replace( imgReg, '' ) );
+      }
+    } );
+
+    var content = minFilepaths.join( '\n' );
+    var urlContent = urls.join( '\n' );
+
+    console.log( 'compress:' );
+    console.log( content + '\n\n' + urlContent + '\n' );
+
+    if ( options.logFile ) {
+      grunt.file.write( options.logFile, content + '\n\n' + urlContent );
+      grunt.log.ok( '生成日志文件:' + options.logFile );
+    }
+
+    if ( options.pListFile ) {
+      grunt.file.write( options.pListFile, content );
+      grunt.log.ok( '生成上线清单文件:' + options.pListFile );
+    }
+  }
+
+  function modifyMapFile ( minFilepaths ) {
+
+    var minFilepathNames = minFilepaths.map( function ( filepath ) {
+      filepath = filepath.replace( /^js\//, '' );
+      if ( filepath.indexOf( '/' ) == -1 ) {
+        filepath = '/' + filepath;
+      }
+      return filepath;
+    } );
+
+    //构造替换正则
+    var regs = minFilepathNames.map( function ( filepath ) {
+
+      if ( filepath.split( '_' ).length > 2 ) {
+        filepath = filepath.split( '_' ).slice( 0, -1 ).join( '_' );
+        filepath = filepath.replace( '/', '\\\/' ) + '((_\\w+)|(_\\d+))?\\.js';
+      } else {
+        filepath = filepath.replace('/', '\\\/').replace(/_\w+\.js/, '((_\\w+)|(\\d+))?\\.js');
+      }
+      return new RegExp( filepath, 'g' );
+    } );
+
+    var modifiedMapFilepaths = [];
+
+    mapFiles.forEach( function ( file ) {
+
+      file.src.forEach( function ( mapFilepath ) {
+
+        var content = fs.readFileAsString( mapFilepath );
+
+        var isModyfied = false;
+
+        minFilepathNames.forEach( function ( minFilepath, index ) {
+          var reg = regs[ index ];
+          reg.lastIndex = 0;
+          if ( reg && reg.test( content ) ) {
+            isModyfied = true;
+            content = content.replace( reg, minFilepath );
+          }
+        } );
+
+        if ( isModyfied ) {
+          modifiedMapFilepaths.push( mapFilepath );
+          grunt.file.write( mapFilepath, content );
+        }
+
+      } );
+    } );
+
+    compress( modifiedMapFilepaths );
+  }
+
+  var minFilepaths = [];
+  compress( fs.readListFile( options.listFile ) );
 };

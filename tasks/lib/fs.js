@@ -16,7 +16,7 @@ var _fs = {
     return util.unique( filepaths );
   },
 
-  readFileString: function ( filepath ) {
+  readFileAsString: function ( filepath ) {
     var buffer = _fs.readFile( filepath );
 
     var content = iconvLite.decode( buffer, 'utf-8' );

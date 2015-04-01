@@ -42,6 +42,7 @@ module.exports = function (grunt) {
 
       min: {
         options: {
+          logFile: 'dist/log.txt',
           listFile: 'dist/list.txt',
           pListFile: 'dist/plist.txt',
           dist: 'dist',
@@ -49,6 +50,7 @@ module.exports = function (grunt) {
         },
         files: {
           src: ['js/kao.js', 'js/dict.js', 'js/gg.seed.js', 'js/base/plugin/swfobject.js', 'js/**/inc.js', '!js/test/**/*.js']
+          //src: ['js/dict.js']
         }
       },
 
