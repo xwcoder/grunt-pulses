@@ -11,7 +11,7 @@ var mkdirp = require( 'mkdirp' );
 var util = require( './util' );
 var sysUtil = require( 'util' );
 
-module.exports = function ( options, grunt, mapFiles ) {
+module.exports = function ( grunt, options, mapFiles ) {
 
   //是否不修改版本号
   function isExclude ( filename, excludes ) {

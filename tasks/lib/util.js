@@ -11,6 +11,23 @@ var isString = isType( 'String' );
 var isArray = isType( 'Array' );
 var isFunction = isType( 'Function' );
 
+function extendIf ( t, s, defaults ) {
+
+  if ( defaults ) {
+    extendIf( t, defaults );
+  }
+
+  if ( isObject( s ) ) {
+    for ( var p in s ) {
+      if ( typeof t[p] == 'undefined' ) {
+        t[p] = s[p];
+      }
+    }
+  }
+  return t;
+}
+
+
 var util = {
 
   isFunction: isFunction,
@@ -45,7 +62,9 @@ var util = {
     var extName = path.extname( filename ).toLowerCase();
     var imageExtNames = [ 'png', 'ico', 'jpg', 'gif', 'jpeg' ];
     return imageExtNames( extName ) != -1;
-  }
+  },
+
+  extendIf: extendIf
 };
 
 module.exports = util;
