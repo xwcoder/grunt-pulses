@@ -37,17 +37,27 @@ grunt.initConfig({
 
 ### Options
 
-#### options.separator
+#### options.logFile
 Type: `String`
-Default value: `',  '`
 
-A string value that is used to do something with whatever.
-
-#### options.punctuation
+#### options.listFile
 Type: `String`
-Default value: `'.'`
 
-A string value that is used to do something else with whatever else.
+#### options.pListFile
+Type: `String`
+
+#### options.dist
+Type: `String`
+the directory for dist
+
+#### options.banner
+Type: `String`
+Default: ''
+
+#### options.confirm
+Type: `Boolean`
+Default: true
+whether to cofirm before upload
 
 ### Usage Examples
 
