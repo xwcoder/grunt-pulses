@@ -201,7 +201,6 @@ module.exports = function ( grunt, options, mapFiles ) {
     }
 
     if ( options.pListFile ) {
-      grunt.file.delete( options.pListFile );
       grunt.file.write( options.pListFile, content );
       grunt.log.ok( '生成上线清单文件:' + options.pListFile );
     }
