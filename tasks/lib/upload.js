@@ -75,18 +75,21 @@ module.exports = function ( grunt, options, done ) {
 
   ftpClient.on( 'ready', function () {
 
-    grunt.log.ok( 'ftp连接成功(' + ftpConfig.host + ')... ' ); 
+    grunt.log.ok( 'ftp连接成功(' + ftpConfig.host + ')... ' );
 
     if ( ftpConfig.cwd ) {
 
       ftpClient.cwd( ftpConfig.cwd, function () {
 
-        grunt.log.ok( 'cwd到(' + ftpConfig.cwd + ')... ' ); 
+        grunt.log.ok( 'cwd到(' + ftpConfig.cwd + ')... ' );
 
         upload();
 
       } );
+    } else {
+      upload();
     }
+
   } );
 
   function upload () {
@@ -100,7 +103,7 @@ module.exports = function ( grunt, options, done ) {
         uploadOne( filepaths[ i++ ] );
       } else {
         ftpClient.end();
-        grunt.log.ok( '上传完毕, ftp断开连接成功...' ); 
+        grunt.log.ok( '上传完毕, ftp断开连接成功...' );
         done();
       }
     } );
