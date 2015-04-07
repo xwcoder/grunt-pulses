@@ -1,6 +1,6 @@
 {
   "name": "grunt-pulses",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "compile build dist tool",
   "homepage": "https://github.com/xwcoder/grunt-pulses",
   "repository": "https://github.com/xwcoder/grunt-pulses.git",
@@ -30,7 +30,7 @@
     "test": "grunt test"
   },
   "dependencies": {
-    "clean-css": "^3.1.8",
+    "clean-css" : "~2.1.8",
     "ftp": "^0.3.9",
     "iconv-lite": "^0.4.7",
     "mkdirp": "^0.5.0",

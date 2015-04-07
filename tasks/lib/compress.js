@@ -80,20 +80,27 @@ module.exports = function ( grunt, options, mapFiles ) {
     var content = fs.readFileAsString( filepath );
 
     var minContent = new CleanCSS( {
-      keepSpecialComments : 0, //* for keeping all (default), 1 for keeping first one only, 0 for removing all
+        keepSpecialComments : 0, //* for keeping all (default), 1 for keeping first one only, 0 for removing all
         noAdvanced : true, //set to true to disable advanced optimizations - selector & property merging, reduction, etc.
         compatibility : true, //Force compatibility mode to ie7 or ie8. Defaults to not set.
     } ).minify( content );
 
-    if ( minContent.errors.length ) {
-      grunt.log.error( minContent.errors );
-    }
+    //var minContent = new CleanCSS( {
+    //  keepSpecialComments : 0, //* for keeping all (default), 1 for keeping first one only, 0 for removing all
+    //    noAdvanced : true, //set to true to disable advanced optimizations - selector & property merging, reduction, etc.
+    //    compatibility : true, //Force compatibility mode to ie7 or ie8. Defaults to not set.
+    //} ).minify( content );
 
-    if ( minContent.warnings.length ) {
-      grunt.log.error( minContent.warnings );
-    }
+    //if ( minContent.errors.length ) {
+    //  grunt.log.error( minContent.errors );
+    //}
 
-    minContent = options.banner + minContent.styles;
+    //if ( minContent.warnings.length ) {
+    //  grunt.log.error( minContent.warnings );
+    //}
+
+    //minContent = options.banner + minContent.styles;
+    minContent = options.banner + minContent;
 
     grunt.file.write( path.join( options.dist, filepath ), minContent );
     return filepath;
