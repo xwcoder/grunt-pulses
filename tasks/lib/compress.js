@@ -226,12 +226,13 @@ module.exports = function ( grunt, options, mapFiles ) {
     //构造替换正则
     var regs = minFilepathNames.map( function ( filepath ) {
 
-      if ( filepath.split( '_' ).length > 2 ) {
-        filepath = filepath.split( '_' ).slice( 0, -1 ).join( '_' );
-        filepath = filepath.replace( '/', '\\\/' ) + '((_\\w+)|(_\\d+))?\\.js';
-      } else {
-        filepath = filepath.replace('/', '\\\/').replace(/_\w+\.js/, '((_\\w+)|(\\d+))?\\.js');
-      }
+      //if ( filepath.split( '_' ).length > 2 ) {
+      //  filepath = filepath.split( '_' ).slice( 0, -1 ).join( '_' );
+      //  filepath = filepath.replace( '/', '\\\/' ) + '((_\\w+)|(_\\d+))?\\.js';
+      //} else {
+      //  filepath = filepath.replace('/', '\\\/').replace(/_\w+\.js/, '((_\\w+)|(\\d+))?\\.js');
+      //}
+      filepath = filepath.replace(/\//g, '\\\/').replace(/_[^_]+?\.js/, '((_[^_]+?)|(\\d+))??\\.js');
       return new RegExp( filepath, 'g' );
     } );
 
