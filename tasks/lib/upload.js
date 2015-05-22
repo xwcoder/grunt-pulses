@@ -116,7 +116,8 @@ module.exports = function ( grunt, options, done ) {
     var realeseFilepath = path.join( options.dist, filepath );
     var dir = path.dirname( filepath );
 
-    dir = path.join( dir, '/' );
+    dir = path.join( dir, '/').replace(/\\/g,'/');
+    filepath = filepath.replace(/\\/g,'/');
 
     ftpClient.mkdir( dir, true, function ( err ) {
 
