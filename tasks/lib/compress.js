@@ -67,7 +67,7 @@ module.exports = function ( grunt, options, mapFiles ) {
     var minFilepath = filepath;
 
     if ( !isExclude( filepath, options.excludes ) ) {
-     minFilepath = path.join( path.dirname( filepath ), path.basename( filepath, '.js') + '_' + signature + '.js' );
+     minFilepath = path.join( path.dirname( filepath ), path.basename( filepath, '.js') + '_' + signature + '.js' ).replace(/\\/g,'/');
     }
 
     grunt.file.write( path.join( options.dist, minFilepath ), minContent );
