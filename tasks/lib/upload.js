@@ -117,7 +117,7 @@ module.exports = function ( grunt, options, done ) {
     var realeseFilepath = path.join( options.dist, filepath );
     var dir = path.dirname( filepath );
 
-    dir = path.join( dir, '/' );
+    dir = path.join( dir, '/');
 
     if( osPlatform.indexOf('win32') > -1 ){
       dir = dir.replace(/\\/g,'/');
