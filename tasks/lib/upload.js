@@ -1,7 +1,7 @@
 var fs = require( 'fs' );
 var path = require( 'path' );
 var Emitter = require( 'events' ).EventEmitter;
-
+var os = require('os');
 
 var FTPClient = require( 'ftp' );
 var util = require( './util' );
@@ -10,6 +10,7 @@ var sysUtil = require( 'util' );
 
 var ftpClient = new FTPClient();
 var emitter = new Emitter();
+var osPlatform = os.platform().toLocaleLowerCase();
 
 function isMatch( fileName, patterns ) {
 
@@ -117,6 +118,11 @@ module.exports = function ( grunt, options, done ) {
     var dir = path.dirname( filepath );
 
     dir = path.join( dir, '/' );
+
+    if( osPlatform.indexOf('win32') > -1 ){
+      dir = dir.replace(/\\/g,'/');
+      filepath = filepath.replace(/\\/g,'/');
+    }
 
     ftpClient.mkdir( dir, true, function ( err ) {
 
