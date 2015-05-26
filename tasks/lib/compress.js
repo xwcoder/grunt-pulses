@@ -2,6 +2,7 @@ var fs = require( './fs' );
 var path = require( 'path' );
 var crypto = require( 'crypto' );
 var url = require( 'url' );
+var os = require('os');
 
 var UglifyJS = require( 'uglify-js' );
 var CleanCSS = require( 'clean-css' );
@@ -10,6 +11,8 @@ var mkdirp = require( 'mkdirp' );
 
 var util = require( './util' );
 var sysUtil = require( 'util' );
+
+var osPlatform = os.platform().toLocaleLowerCase();
 
 module.exports = function ( grunt, options, mapFiles ) {
 
@@ -68,6 +71,10 @@ module.exports = function ( grunt, options, mapFiles ) {
 
     if ( !isExclude( filepath, options.excludes ) ) {
      minFilepath = path.join( path.dirname( filepath ), path.basename( filepath, '.js') + '_' + signature + '.js' );
+
+        if( osPlatform.indexOf('win32') > -1 ){
+            minFilepath = minFilepath.replace(/\\/g,'/');
+        }
     }
 
     grunt.file.write( path.join( options.dist, minFilepath ), minContent );
