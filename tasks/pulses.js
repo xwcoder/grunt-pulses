@@ -35,7 +35,11 @@ module.exports = function (grunt) {
 
     if ( /^min/.test( targetName) ) {
 
-      compress( grunt, options, this.files );
+      try {
+       compress( grunt, options, this.files );
+      } catch (e) {
+        grunt.log.error(e);
+      }
 
     } else if ( /^ftp/.test( targetName ) ) {
 
