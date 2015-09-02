@@ -14,7 +14,7 @@ var sysUtil = require( 'util' );
 
 var osPlatform = os.platform().toLocaleLowerCase();
 
-module.exports = function ( grunt, options, mapFiles ) {
+module.exports = function (grunt, options, mapFiles) {
 
   //是否不修改版本号
   function isExclude ( filename, excludes ) {
@@ -44,40 +44,56 @@ module.exports = function ( grunt, options, mapFiles ) {
     return isExclude;
   }
 
-  function compressJS ( filepath ) {
+  var xmin = isExclude;
 
-    var buffer = fs.readFile( filepath );
+  function compressJS (filepath) {
 
-    var content = iconvLite.decode( buffer, 'utf-8' );
+    grunt.log.debug(options.excludes);
+    grunt.log.debug(options.xmin);
 
-    if ( content.indexOf( '�' ) != -1 ) {
-      content = iconvLite.decode( buffer, 'gbk' );
+    if ( xmin(filepath, options.xmin) ) {
+      //grunt.file.copy(filepath, path.join(options.dist, filepath));
+      //return filepath;
+      return null;
     }
 
-    var minContent = UglifyJS.minify( content, {
-      fromString: true,
-        output: {
-          ascii_only : true,
-          max_line_len : null
-        }
-    } ).code;
+    var buffer = fs.readFile(filepath);
+
+    var content = iconvLite.decode(buffer, 'utf-8');
+
+    if (content.indexOf( '�' ) != -1) {
+      content = iconvLite.decode(buffer, 'gbk');
+    }
+
+    try {
+      var minContent = UglifyJS.minify(content, {
+        fromString: true,
+          output: {
+            ascii_only : true,
+            max_line_len : null
+          }
+      }).code;
+    } catch (e) {
+      grunt.log.error('压缩失败:' + filepath);
+      throw e;
+    }
 
     minContent = options.banner + minContent;
 
     //获得sha1签名
-    var signature = crypto.createHash( 'sha1' ).update( buffer ).digest( 'hex' ).slice( 0, 6 );
+    var signature = crypto.createHash('sha1').update(buffer).digest('hex').slice(0, 6);
 
     var minFilepath = filepath;
 
-    if ( !isExclude( filepath, options.excludes ) ) {
-     minFilepath = path.join( path.dirname( filepath ), path.basename( filepath, '.js') + '_' + signature + '.js' );
+    if ( !isExclude(filepath, options.excludes) ) {
+     minFilepath = path.join(path.dirname(filepath), path.basename(filepath, '.js') + '_' + signature + '.js');
 
-        if( osPlatform.indexOf('win32') > -1 ){
+        if ( osPlatform.indexOf('win32') > -1 ) {
             minFilepath = minFilepath.replace(/\\/g,'/');
         }
     }
 
-    grunt.file.write( path.join( options.dist, minFilepath ), minContent );
+    grunt.file.write(path.join(options.dist, minFilepath), minContent);
 
     return minFilepath;
   }
@@ -118,46 +134,51 @@ module.exports = function ( grunt, options, mapFiles ) {
     return filepath;
   }
 
-  function compressOne ( filepath ) {
+  function compressOne (filepath) {
 
     var minFilepath = '';
 
-    if ( util.isScript( filepath ) ) {
+    if ( util.isScript(filepath) ) {
 
-      minFilepath = compressJS( filepath );
+      minFilepath = compressJS(filepath);
 
-    } else if ( util.isCss( filepath ) ) {
+    } else if ( util.isCss(filepath) ) {
 
-      minFilepath = compressCSS( filepath );
+      minFilepath = compressCSS(filepath);
 
     } else {
-      minFilepath = compressOther( filepath );
+      minFilepath = compressOther(filepath);
     }
 
     return minFilepath;
   }
 
-  function compress ( filepaths ) {
+  function compress (filepaths) {
 
     var modifyPaths = [];
 
-    filepaths.forEach( function ( filepath ) {
+    filepaths.forEach(function (filepath) {
 
-      var minFilepath = compressOne( filepath );
+      var minFilepath = compressOne(filepath);
 
-      if ( minFilepaths.indexOf( minFilepath ) == -1 ) {
-        minFilepaths.push( minFilepath );
+      //设定：1. 不需要压缩的文件也不会给其他map文件引用, 即不需要修改map文件
+      //      2. 不需要压缩的文件也不需要上线
+      //if ( !xmin(filepath, options.xmin) ) {
+      if ( minFilepath ) {
+        if ( minFilepaths.indexOf(minFilepath) == -1 ) {
+          minFilepaths.push(minFilepath);
+        }
+
+        if ( minFilepath != filepath && modifyPaths.indexOf(minFilepath) == -1 ) {
+          modifyPaths.push( minFilepath );
+        }
       }
 
-      if ( minFilepath != filepath && modifyPaths.indexOf( minFilepath ) == -1 ) {
-        modifyPaths.push( minFilepath );
-      }
-
-    } );
+    });
 
     if ( modifyPaths.length ) {
-      modifyMapFile( modifyPaths );
-    } else { //没有替换文件则声称plist
+      modifyMapFile(modifyPaths);
+    } else { //没有替换文件则生成plist
       log();
     }
   }
@@ -165,10 +186,10 @@ module.exports = function ( grunt, options, mapFiles ) {
   //生成plist文件，并答应log
   function log () {
 
-    minFilepaths.sort( function ( f1, f2 ) {
+    minFilepaths.sort(function (f1, f2) {
 
-      var ext1 = path.extname( f1 ).toLowerCase();
-      var ext2 = path.extname( f2 ).toLowerCase();
+      var ext1 = path.extname(f1).toLowerCase();
+      var ext2 = path.extname(f2).toLowerCase();
 
       if ( ( ext1 == '.js' && ext2 != '.js' )
         || ( ext1 == '.css' && ext2 != '.js' && ext2 != '.css' ) ) {
@@ -182,56 +203,56 @@ module.exports = function ( grunt, options, mapFiles ) {
         }
 
       return 1;
-    } );
+    });
 
     var jsReg = /^js\//;
     var cssReg = /^css\//;
     var imgReg = /^img\//;
 
-    var urls = minFilepaths.map( function ( filepath ) {
+    var urls = minFilepaths.map(function (filepath) {
 
-      if ( jsReg.test( filepath ) ) {
-        return url.resolve( 'http://js.tv.itc.cn', filepath.replace( jsReg, '' ) );
+      if ( jsReg.test(filepath) ) {
+        return url.resolve('http://js.tv.itc.cn', filepath.replace(jsReg, ''));
       }
 
-      if ( cssReg.test( filepath ) ) {
-        return url.resolve( 'http://css.tv.itc.cn', filepath.replace( cssReg, '' ) );
+      if ( cssReg.test(filepath) ) {
+        return url.resolve('http://css.tv.itc.cn', filepath.replace(cssReg, ''));
       }
 
-      if ( imgReg.test( filepath ) ) {
-        return url.resolve( 'http://css.tv.itc.cn', filepath.replace( imgReg, '' ) );
+      if ( imgReg.test(filepath) ) {
+        return url.resolve('http://css.tv.itc.cn', filepath.replace(imgReg, ''));
       }
-    } );
+    });
 
-    var content = minFilepaths.join( '\n' );
-    var urlContent = urls.join( '\n' );
+    var content = minFilepaths.join('\n');
+    var urlContent = urls.join('\n');
 
     console.log( 'compress:' );
     console.log( content + '\n\n' + urlContent + '\n' );
 
     if ( options.logFile ) {
-      grunt.file.write( options.logFile, content + '\n\n' + urlContent );
-      grunt.log.ok( '生成日志文件:' + options.logFile );
+      grunt.file.write(options.logFile, content + '\n\n' + urlContent);
+      grunt.log.ok('生成日志文件:' + options.logFile);
     }
 
     if ( options.pListFile ) {
-      grunt.file.write( options.pListFile, content );
-      grunt.log.ok( '生成上线清单文件:' + options.pListFile );
+      grunt.file.write(options.pListFile, content);
+      grunt.log.ok('生成上线清单文件:' + options.pListFile);
     }
   }
 
-  function modifyMapFile ( minFilepaths ) {
+  function modifyMapFile (minFilepaths) {
 
-    var minFilepathNames = minFilepaths.map( function ( filepath ) {
-      filepath = filepath.replace( /^js\//, '' );
+    var minFilepathNames = minFilepaths.map(function (filepath) {
+      filepath = filepath.replace(/^js\//, '');
       if ( filepath.indexOf( '/' ) == -1 ) {
         filepath = '/' + filepath;
       }
       return filepath;
-    } );
+    });
 
     //构造替换正则
-    var regs = minFilepathNames.map( function ( filepath ) {
+    var regs = minFilepathNames.map(function (filepath) {
 
       //if ( filepath.split( '_' ).length > 2 ) {
       //  filepath = filepath.split( '_' ).slice( 0, -1 ).join( '_' );
@@ -240,37 +261,36 @@ module.exports = function ( grunt, options, mapFiles ) {
       //  filepath = filepath.replace('/', '\\\/').replace(/_\w+\.js/, '((_\\w+)|(\\d+))?\\.js');
       //}
       filepath = filepath.replace(/\//g, '\\\/').replace(/_[^_]+?\.js/, '((_[^_]+?)|(\\d+))??\\.js');
-      return new RegExp( filepath, 'g' );
+      return new RegExp(filepath, 'g');
     } );
 
     var modifiedMapFilepaths = [];
 
-    mapFiles.forEach( function ( file ) {
+    mapFiles.forEach(function (file) {
 
-      file.src.forEach( function ( mapFilepath ) {
+      file.src.forEach(function (mapFilepath) {
 
-        var content = fs.readFileAsString( mapFilepath );
+        var content = fs.readFileAsString(mapFilepath);
 
         var isModyfied = false;
 
-        minFilepathNames.forEach( function ( minFilepath, index ) {
-          var reg = regs[ index ];
+        minFilepathNames.forEach(function (minFilepath, index) {
+          var reg = regs[index];
           reg.lastIndex = 0;
-          if ( reg && reg.test( content ) ) {
+          if ( reg && reg.test(content) ) {
             isModyfied = true;
-            content = content.replace( reg, minFilepath );
+            content = content.replace(reg, minFilepath);
           }
-        } );
+        });
 
         if ( isModyfied ) {
-          modifiedMapFilepaths.push( mapFilepath );
-          grunt.file.write( mapFilepath, content );
+          modifiedMapFilepaths.push(mapFilepath);
+          grunt.file.write(mapFilepath, content);
         }
-
       } );
     } );
 
-    compress( modifiedMapFilepaths );
+    compress(modifiedMapFilepaths);
   }
 
   var minFilepaths = [];

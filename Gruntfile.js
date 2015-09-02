@@ -56,6 +56,8 @@ module.exports = function (grunt) {
       min: {
         options: {
           listFile: 'dist/list.txt',
+          //不做压缩的文件(uglify2不支持压缩es6语法)
+          xmin: [/^js\/src/],
         },
         files: {
           //字典文件
