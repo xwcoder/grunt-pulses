@@ -15,7 +15,7 @@ var osPlatform = os.platform().toLocaleLowerCase();
 function isMatch( fileName, patterns ) {
 
   if ( !sysUtil.isArray( patterns ) ) {
-    excludes = [ patterns ];
+    patterns = [ patterns ];
   }
 
   var  isMatch = false;

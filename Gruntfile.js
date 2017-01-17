@@ -6,17 +6,15 @@
  * Licensed under the MIT license.
  */
 
-'use strict';
-
 module.exports = function (grunt) {
 
-  require( 'time-grunt' )( grunt );
+  require('time-grunt')(grunt)
   // load all npm grunt tasks
-  require('load-grunt-tasks')(grunt);
+  require('load-grunt-tasks')(grunt)
 
   // Project configuration.
   grunt.initConfig({
-    pkg: grunt.file.readJSON( 'package.json' ),
+    pkg: grunt.file.readJSON('package.json'),
     jshint: {
       all: [
         'Gruntfile.js',
@@ -51,6 +49,19 @@ module.exports = function (grunt) {
 
         // 字典文件正则, 用于上线时先上线普通文件，最后上线字典文件
         mapFiles : [ /(^|\/)kao\./, /(^|\/)dict\./, /(^|\/)inc\./, /(^|\/)gg\.seed\./, /(^|\/)swfobject\./ ],
+
+        uglify: {
+          fromString: true,
+          output: {
+            ascii_only : true,
+            max_line_len : null
+          }
+        },
+        cleanCss: {
+          keepSpecialComments : 0, //* for keeping all (default), 1 for keeping first one only, 0 for removing all
+          noAdvanced : true, //set to true to disable advanced optimizations - selector & property merging, reduction, etc.
+          compatibility : true, //Force compatibility mode to ie7 or ie8. Defaults to not set.
+        }
       },
 
       min: {
@@ -84,16 +95,16 @@ module.exports = function (grunt) {
       tests: ['test/*_test.js']
     }
 
-  });
+  })
 
   // Actually load this plugin's task(s).
-  grunt.loadTasks('tasks');
+  grunt.loadTasks('tasks')
 
   // Whenever the "test" task is run, first clean the "tmp" dir, then run this
   // plugin's task(s), then test the result.
-  grunt.registerTask('test', ['clean', 'pulses', 'nodeunit']);
+  grunt.registerTask('test', ['clean', 'pulses', 'nodeunit'])
 
   // By default, lint and run all tests.
-  grunt.registerTask('default', ['jshint', 'test']);
+  grunt.registerTask('default', ['jshint', 'test'])
 
-};
+}
