@@ -213,6 +213,8 @@ module.exports = function (grunt, options, mapFiles) {
     var jsReg = /^js\//
     var cssReg = /^css\//
     var imgReg = /^img\//
+    var htmlReg = /^html\//
+    var tvsReg = /^s\//
 
     var urls = minFilepaths.map(function (filepath) {
 
@@ -226,6 +228,14 @@ module.exports = function (grunt, options, mapFiles) {
 
       if (imgReg.test(filepath)) {
         return url.resolve('http://css.tv.itc.cn', filepath.replace(imgReg, ''))
+      }
+
+      if (htmlReg.test(filepath)) {
+        return url.resolve('http://tv.sohu.com', filepath.replace(htmlReg, 's'))
+      }
+
+      if (tvsReg.test(filepath)) {
+        return url.resolve('http://tv.sohu.com', filepath)
       }
     })
 
@@ -268,12 +278,14 @@ module.exports = function (grunt, options, mapFiles) {
       filepath = filepath.replace(/\//g, '\\\/').replace(/_[^_]+?\.js/, '((_[^_]+?)|(\\d+))??\\.js')
       return new RegExp(filepath, 'g')
     })
+    grunt.log.debug("regs:"+regs)
 
     var modifiedMapFilepaths = []
 
     mapFiles.forEach(function (file) {
 
       file.src.forEach(function (mapFilepath) {
+      grunt.log.debug("mapFilepath:"+mapFilepath)
 
         var content = fs.readFileAsString(mapFilepath)
 
