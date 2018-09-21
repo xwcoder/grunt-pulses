@@ -61,12 +61,14 @@ module.exports = function (grunt, options, mapFiles) {
     var buffer = fs.readFile(filepath)
 
     var content = iconvLite.decode(buffer, 'utf-8')
+    var minContent = ''
 
     if (content.indexOf( '�' ) != -1) {
       content = iconvLite.decode(buffer, 'gbk')
     }
 
-    try {
+    grunt.log.debug("xminHASH:"+xmin(filepath, options.onlyHASH))
+    if (!xmin(filepath, options.onlyHASH)) {
       //var minContent = UglifyJS.minify(content, {
       //  fromString: true,
       //  output: {
@@ -74,10 +76,15 @@ module.exports = function (grunt, options, mapFiles) {
       //    max_line_len : null
       //  }
       //}).code
-      var minContent = UglifyJS.minify(content, options.uglify).code
-    } catch (e) {
-      grunt.log.error('压缩失败:' + filepath)
-      throw e
+      var ugres = UglifyJS.minify(content, options.uglify)
+      if (ugres.error) {
+        grunt.log.error('压缩失败:' + JSON.stringify(ugres.error))
+        throw ugres.error
+      } else {
+        minContent = ugres.code
+      }
+    } else {
+        minContent = content
     }
 
     minContent = options.banner + minContent
@@ -213,6 +220,8 @@ module.exports = function (grunt, options, mapFiles) {
     var jsReg = /^js\//
     var cssReg = /^css\//
     var imgReg = /^img\//
+    var htmlReg = /^html\//
+    var tvsReg = /^s\//
 
     var urls = minFilepaths.map(function (filepath) {
 
@@ -226,6 +235,14 @@ module.exports = function (grunt, options, mapFiles) {
 
       if (imgReg.test(filepath)) {
         return url.resolve('http://css.tv.itc.cn', filepath.replace(imgReg, ''))
+      }
+
+      if (htmlReg.test(filepath)) {
+        return url.resolve('http://tv.sohu.com', filepath.replace(htmlReg, 's'))
+      }
+
+      if (tvsReg.test(filepath)) {
+        return url.resolve('http://tv.sohu.com', filepath)
       }
     })
 
@@ -268,12 +285,14 @@ module.exports = function (grunt, options, mapFiles) {
       filepath = filepath.replace(/\//g, '\\\/').replace(/_[^_]+?\.js/, '((_[^_]+?)|(\\d+))??\\.js')
       return new RegExp(filepath, 'g')
     })
+    grunt.log.debug("regs:"+regs)
 
     var modifiedMapFilepaths = []
 
     mapFiles.forEach(function (file) {
 
       file.src.forEach(function (mapFilepath) {
+      grunt.log.debug("mapFilepath:"+mapFilepath)
 
         var content = fs.readFileAsString(mapFilepath)
 
