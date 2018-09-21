@@ -61,12 +61,14 @@ module.exports = function (grunt, options, mapFiles) {
     var buffer = fs.readFile(filepath)
 
     var content = iconvLite.decode(buffer, 'utf-8')
+    var minContent = ''
 
     if (content.indexOf( '�' ) != -1) {
       content = iconvLite.decode(buffer, 'gbk')
     }
 
-    try {
+    grunt.log.debug("xminHASH:"+xmin(filepath, options.onlyHASH))
+    if (!xmin(filepath, options.onlyHASH)) {
       //var minContent = UglifyJS.minify(content, {
       //  fromString: true,
       //  output: {
@@ -74,10 +76,15 @@ module.exports = function (grunt, options, mapFiles) {
       //    max_line_len : null
       //  }
       //}).code
-      var minContent = UglifyJS.minify(content, options.uglify).code
-    } catch (e) {
-      grunt.log.error('压缩失败:' + filepath)
-      throw e
+      var ugres = UglifyJS.minify(content, options.uglify)
+      if (ugres.error) {
+        grunt.log.error('压缩失败:' + JSON.stringify(ugres.error))
+        throw ugres.error
+      } else {
+        minContent = ugres.code
+      }
+    } else {
+        minContent = content
     }
 
     minContent = options.banner + minContent

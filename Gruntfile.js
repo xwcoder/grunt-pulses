@@ -51,11 +51,11 @@ module.exports = function (grunt) {
         mapFiles : [ /(^|\/)kao\./, /(^|\/)dict\./, /(^|\/)inc\./, /(^|\/)gg\.seed\./, /(^|\/)swfobject\./ ],
 
         uglify: {
-          fromString: true,
           output: {
             ascii_only : true,
-            max_line_len : null
-          }
+            max_line_len : null,
+          },
+          ie8: true
         },
         cleanCss: {
           keepSpecialComments : 0, //* for keeping all (default), 1 for keeping first one only, 0 for removing all
@@ -69,6 +69,7 @@ module.exports = function (grunt) {
           listFile: 'dist/list.txt',
           //不做压缩的文件(uglify2不支持压缩es6语法)
           xmin: [/^js\/src/],
+          onlyHASH: [/^js\/player/],
         },
         files: {
           //字典文件
